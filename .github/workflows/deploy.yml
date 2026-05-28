@@ -38,6 +38,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ${{ secrets.EC2_TARGET_DIR }}
-            docker compose pull frontend
-            docker compose up -d frontend
+            docker pull cristian102711/front-despacho:latest
+            docker stop frontend || true
+            docker rm frontend || true
+            docker run -d --name frontend -p 80:8080 cristian102711/front-despacho:latest
