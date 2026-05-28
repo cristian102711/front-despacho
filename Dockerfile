@@ -21,9 +21,9 @@ FROM nginx:alpine AS production
 # Copiamos el build de React
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Configuración de Nginx para React Router
+# Configuración de Nginx para React Router en puerto 8080 (para poder correr como usuario no-root)
 RUN echo 'server { \
-    listen 80; \
+    listen 8080; \
     location / { \
     root /usr/share/nginx/html; \
     index index.html; \
@@ -31,6 +31,12 @@ RUN echo 'server { \
     } \
     }' > /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+# Ajustar permisos para que el usuario nginx pueda escribir en directorios requeridos por Nginx
+RUN touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
+
+USER nginx
+
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]
